@@ -25,7 +25,6 @@ torch.backends.cudnn.benchmark = False
 import requests
 import time
 import re
-from dateutil import parser as date_parser
 
 def make_dirs(directories):
     for directory in directories:
