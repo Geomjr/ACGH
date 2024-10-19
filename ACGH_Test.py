@@ -25,12 +25,10 @@ torch.backends.cudnn.benchmark = False
 import requests
 import time
 import re
-
 def make_dirs(directories):
     for directory in directories:
         if not os.path.exists(directory):
             os.makedirs(directory)
-
 def load_net(testiter, cfg_name, data_dir, cache_dir, cuda_id=0):
     cfg_file = os.path.join(system_configs.config_dir, cfg_name + ".json")
     with open(cfg_file, "r") as f:
@@ -94,27 +92,38 @@ def Pre_load_nets(type, id_cuda, data_dir, cache_dir):
     return methods
 
 def ocr_result(image_path):
-    subscription_key = os.getenv("AZURE_SUBSCRIPTION_KEY", "3216766ca6bc4bd6a37e2c2e1c3e97b9")
-    vision_base_url = os.getenv("AZURE_ENDPOINT", "https://onevon.cognitiveservices.azure.com/") + "vision/v2.0/"
-    ocr_url = vision_base_url + "read/core/asyncBatchAnalyze"
+    subscription_key = "ad143190288d40b79483aa0d5c532724"
+    vision_base_url = "https://westus2.api.cognitive.microsoft.com/vision/v3.2/"
+    ocr_url = vision_base_url + "read/analyze"
     headers = {'Ocp-Apim-Subscription-Key': subscription_key, 'Content-Type': 'application/octet-stream'}
-    params = {'language': 'unk', 'detectOrientation': 'true'}
+    
     image_data = open(image_path, "rb").read()
-    response = requests.post(ocr_url, headers=headers, params=params, data=image_data)
+    response = requests.post(ocr_url, headers=headers, data=image_data)
     response.raise_for_status()
+    
+    # Extracting the operation location for checking the analysis status
     op_location = response.headers['Operation-Location']
     analysis = {}
-    while "recognitionResults" not in analysis.keys():
+    
+    # Polling the result endpoint to check if the analysis is completed
+    while "analyzeResult" not in analysis.keys():
         time.sleep(3)
-        binary_content = requests.get(op_location, headers=headers, params=params).content
-        analysis = json.loads(binary_content.decode('ascii'))
-    line_infos = [region["lines"] for region in analysis["recognitionResults"]]
+        response_final = requests.get(op_location, headers={'Ocp-Apim-Subscription-Key': subscription_key})
+        response_final.raise_for_status()
+        analysis = response_final.json()
+    
+    # Extracting text data from the analysis result
+    read_results = analysis["analyzeResult"]["readResults"]
     word_infos = []
-    for line in line_infos:
-        for word_metadata in line:
-            for word_info in word_metadata["words"]:
-                word_infos.append(word_info)
+    for page in read_results:
+        for line in page["lines"]:
+            for word in line["words"]:
+                word_infos.append({
+                    "text": word["text"],
+                    "boundingBox": word["boundingBox"]
+                })
     return word_infos
+
 
 def check_intersection(box1, box2):
     if (box1[2] - box1[0]) + ((box2[2] - box2[0])) > max(box2[2], box1[2]) - min(box2[0], box1[0]) \
