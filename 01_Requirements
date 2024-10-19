@@ -1,3 +1,6 @@
+# This file may be used to create an environment using:
+# $ conda create --name ACGH --file <this file>
+# platform: linux-64
 @EXPLICIT
 https://repo.anaconda.com/pkgs/main/linux-64/_libgcc_mutex-0.1-main.tar.bz2
 https://repo.continuum.io/pkgs/main/linux-64/blas-1.0-mkl.tar.bz2
