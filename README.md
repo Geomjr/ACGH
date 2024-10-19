@@ -1,14 +1,12 @@
-# DeepRule
-Compete code of DeepRule
 ## Getting Started
 Please first install [Anaconda](https://anaconda.org) and create an Anaconda environment using the provided package list.
 ```
- conda create  --name DeepRule --file DeepRule.txt
+ conda create  --name ACGH --file ACGH.txt
 ```
 
 After you create the environment, activate it.
 ```
-source activate DeepRule
+source activate ACGH
 ```
 
 Our current implementation only supports GPU so you need a GPU and need to have CUDA installed on your machine.
