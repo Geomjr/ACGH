@@ -238,7 +238,6 @@ def parse_args():
 if __name__ == "__main__":
     args = parse_args()
     methods = Pre_load_nets(args.type, 0, args.data_dir, args.cache_path)
-    target_dir = args.result_path
     tar_path = args.image_path
     save_path = args.save_path
     rs_dict = {}
